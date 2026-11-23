@@ -3,20 +3,24 @@
     "name": "Sodium Chloride",
     "page": "https://mberger3109111.github.io/Bonding-Database/NaCl.html"
   },
+
   "KNO3": {
     "name": "Potassium Nitrate",
     "page": "https://mberger3109111.github.io/Bonding-Database/KNO3.html"
   },
+
   "CuSO4": {
     "name": "Copper(II) Sulfate",
     "page": "https://mberger3109111.github.io/Bonding-Database/CuSO4.html"
   },
+
   "C12H22O11": {
     "name": "Sucrose",
-    "page": "https://mberger3109111.github.io/Bonding-Database/C12H22O11.html"
+    "page": "https://mberger3109111.github.io/Bonding-Database/Sucrose.html"
   },
+
   "C18H36O2": {
     "name": "Stearic Acid",
-    "page": "https://mberger3109111.github.io/Bonding-Database/C18H36O2.html"
+    "page": "https://mberger3109111.github.io/Bonding-Database/StearicAcid.html"
   }
 }
