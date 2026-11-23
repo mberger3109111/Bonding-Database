@@ -1,0 +1,145 @@
+{
+  "NaCl": {
+    "formula": "NaCl",
+    "name": "Sodium Chloride",
+    "commonName": "Table Salt",
+    "bondType": "Ionic",
+
+    "databasePage": "NaCl.html",
+
+    "properties": {
+      "conductsAsSolid": "No",
+      "conductsInSolution": "Yes",
+      "solubleInWater": "Yes",
+      "meltingPoint": "High"
+    },
+
+    "structure": {
+      "cation": "Na+",
+      "anion": "Cl-"
+    },
+
+    "appearance": "White crystalline solid",
+
+    "uses": [
+      "Food seasoning",
+      "Food preservation",
+      "Road de-icing"
+    ]
+  },
+
+  "KNO3": {
+    "formula": "KNO3",
+    "name": "Potassium Nitrate",
+    "commonName": "Saltpeter",
+    "bondType": "Ionic",
+
+    "databasePage": "KNO3.html",
+
+    "properties": {
+      "conductsAsSolid": "No",
+      "conductsInSolution": "Yes",
+      "solubleInWater": "Yes",
+      "meltingPoint": "High"
+    },
+
+    "structure": {
+      "cation": "K+",
+      "anion": "NO3-"
+    },
+
+    "appearance": "White crystalline solid",
+
+    "uses": [
+      "Fertilizer",
+      "Food preservation",
+      "Pyrotechnics"
+    ]
+  },
+
+  "CuSO4": {
+    "formula": "CuSO4",
+    "name": "Copper(II) Sulfate",
+    "commonName": "Copper Sulfate",
+    "bondType": "Ionic",
+
+    "databasePage": "CuSO4.html",
+
+    "properties": {
+      "conductsAsSolid": "No",
+      "conductsInSolution": "Yes",
+      "solubleInWater": "Yes",
+      "meltingPoint": "High"
+    },
+
+    "structure": {
+      "cation": "Cu2+",
+      "anion": "SO4 2-"
+    },
+
+    "appearance": "Blue crystalline solid",
+
+    "uses": [
+      "Algae control",
+      "Laboratory chemical",
+      "Root killer"
+    ]
+  },
+
+  "C12H22O11": {
+    "formula": "C12H22O11",
+    "name": "Sucrose",
+    "commonName": "Table Sugar",
+    "bondType": "Polar Covalent",
+
+    "databasePage": "C12H22O11.html",
+
+    "properties": {
+      "conductsAsSolid": "No",
+      "conductsInSolution": "No",
+      "solubleInWater": "Yes",
+      "meltingPoint": "Low"
+    },
+
+    "structure": {
+      "centralAtom": "Multiple Carbon Atoms",
+      "polarity": "Polar"
+    },
+
+    "appearance": "White crystalline solid",
+
+    "uses": [
+      "Sweetener",
+      "Food ingredient"
+    ]
+  },
+
+  "C18H36O2": {
+    "formula": "C18H36O2",
+    "name": "Stearic Acid",
+    "commonName": "Stearic Acid",
+    "bondType": "Nonpolar Covalent",
+
+    "databasePage": "C18H36O2.html",
+
+    "properties": {
+      "conductsAsSolid": "No",
+      "conductsInSolution": "No",
+      "solubleInWater": "No",
+      "meltingPoint": "Low"
+    },
+
+    "structure": {
+      "centralAtom": "Carbon",
+      "polarity": "Nonpolar"
+    },
+
+    "appearance": "White waxy solid",
+
+    "uses": [
+      "Candles",
+      "Soap manufacturing",
+      "Cosmetics"
+    ]
+  }
+}
