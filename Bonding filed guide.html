@@ -1,0 +1,2086 @@
+The code below now uses your exact URL, including the capital **D** in `Database.json`:
+
+```text
+https://raw.githubusercontent.com/mberger3109111/Bonding-Database/main/Database.json
+```
+
+I couldn’t retrieve the file from this environment, so I haven’t verified its contents. Everything else in the app remains unchanged.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compound Decision Tree</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 36px 16px;
+      font-family: Arial, sans-serif;
+      color: #1e293b;
+      background: #eef3f9;
+    }
+
+    main {
+      max-width: 840px;
+      margin: auto;
+      padding: 32px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgb(0 0 0 / 8%);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    h1 {
+      margin-top: 0;
+      line-height: 1.25;
+    }
+
+    p {
+      line-height: 1.6;
+    }
+
+    .intro,
+    .note {
+      color: #526078;
+    }
+
+    .note {
+      font-size: 0.9rem;
+    }
+
+    fieldset {
+      min-width: 0;
+      margin: 24px 0;
+      padding: 0;
+      border: none;
+    }
+
+    legend {
+      margin-bottom: 12px;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    .choices {
+      display: flex;
+      gap: 12px;
+    }
+
+    .choice {
+      position: relative;
+      flex: 1;
+    }
+
+    .choice input {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+    }
+
+    .choice label {
+      display: block;
+      padding: 13px;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .choice label:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .choice input:checked + label {
+      color: white;
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+
+    .choice input:focus-visible + label,
+    input:focus-visible,
+    button:focus-visible {
+      outline: 3px solid #0f172a;
+      outline-offset: 3px;
+    }
+
+    button {
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .primary {
+      color: white;
+      background: #2563eb;
+    }
+
+    .primary:hover:not(:disabled) {
+      background: #1d4ed8;
+    }
+
+    .primary:disabled {
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    .secondary {
+      color: #1e293b;
+      background: #e2e8f0;
+    }
+
+    .secondary:hover {
+      background: #cbd5e1;
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .actions button {
+      flex: 1;
+    }
+
+    .box {
+      margin: 24px 0;
+      padding: 24px;
+      border: 2px solid #bfdbfe;
+      border-radius: 12px;
+      background: #eff6ff;
+    }
+
+    .box h2 {
+      margin-top: 0;
+      color: #1d4ed8;
+    }
+
+    .entry-card {
+      padding: 20px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    .entry-card > legend {
+      padding: 0 6px;
+    }
+
+    .fields {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 16px;
+    }
+
+    .equal-fields {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .three-fields {
+      grid-template-columns: 1fr 1.5fr 1fr;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .text-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #cbd5e1;
+      border-radius: 8px;
+      background: white;
+      color: #1e293b;
+      font: inherit;
+    }
+
+    .formula-input {
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 1.35rem;
+    }
+
+    .checkbox-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .checkbox-options label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    .checkbox-options input {
+      width: 20px;
+      height: 20px;
+    }
+
+    .additional-charge-panel {
+      margin-top: 20px;
+      padding: 18px;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      background: #eff6ff;
+    }
+
+    .additional-charge-panel p:first-child {
+      margin-top: 0;
+    }
+
+    .formula-output {
+      margin: 16px 0;
+      font-family: "Cambria Math", "Times New Roman", serif;
+      font-size: 3rem;
+      overflow-wrap: anywhere;
+    }
+
+    .compound-name {
+      margin: 8px 0 0;
+      color: #1e293b;
+      font-size: 1.5rem;
+      font-weight: bold;
+      overflow-wrap: anywhere;
+    }
+
+    .summary {
+      padding-left: 22px;
+      line-height: 1.9;
+    }
+
+    .error {
+      padding: 12px;
+      color: #991b1b;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+    }
+
+    .database-result {
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #bfdbfe;
+    }
+
+    .database-result button {
+      max-width: 100%;
+      white-space: normal;
+    }
+
+    @media (max-width: 640px) {
+      main {
+        padding: 24px 18px;
+      }
+
+      h1 {
+        font-size: 1.6rem;
+      }
+
+      .fields,
+      .equal-fields,
+      .three-fields {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+
+      .formula-output {
+        font-size: 2.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <!-- SCREEN 1: PHYSICAL PROPERTIES -->
+    <section id="input-page" aria-labelledby="input-heading">
+      <h1 id="input-heading" tabindex="-1">
+        Compound Classification
+      </h1>
+
+      <p class="intro">
+        Answer each question about the compound, then click Continue.
+      </p>
+
+      <form id="compound-form">
+        <div id="questions"></div>
+
+        <button type="submit" class="primary full-width">
+          Continue
+        </button>
+      </form>
+    </section>
+
+    <!-- SCREEN 2: CLASSIFICATION -->
+    <section
+      id="results-page"
+      aria-labelledby="results-heading"
+      hidden
+    >
+      <h1 id="results-heading" tabindex="-1">Your Result</h1>
+
+      <div class="box">
+        <h2 id="classification"></h2>
+        <p id="classification-description"></p>
+      </div>
+
+      <h3>Your answers</h3>
+      <ul id="answer-summary" class="summary"></ul>
+
+      <p class="note">
+        Classification follows the three rules defined for this activity.
+        Other combinations are not classified.
+      </p>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="secondary"
+          data-page="input-page"
+        >
+          Back to answers
+        </button>
+
+        <button
+          type="button"
+          class="primary"
+          id="continue-to-entry"
+        >
+          Continue
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 3: IONIC INPUTS -->
+    <section
+      id="ionic-page"
+      aria-labelledby="ionic-heading"
+      hidden
+    >
+      <h1 id="ionic-heading" tabindex="-1">
+        Enter Ion Information
+      </h1>
+
+      <p class="intro">
+        Enter the cation and anion formulas without their charges.
+        Numbers become subscripts automatically:
+        type NO3 to enter NO₃.
+      </p>
+
+      <form id="ionic-form">
+        <fieldset class="entry-card">
+          <legend>Cation</legend>
+
+          <div class="fields">
+            <div class="field">
+              <label for="cation-formula">
+                Cation symbol/formula
+              </label>
+
+              <input
+                id="cation-formula"
+                class="text-input formula-input"
+                type="text"
+                placeholder="e.g., Na, Ca, Co, or NH₄"
+                autocapitalize="off"
+                spellcheck="false"
+                autocomplete="off"
+                required
+              >
+            </div>
+
+            <div class="field">
+              <label for="cation-charge">Charge</label>
+
+              <input
+                id="cation-charge"
+                class="text-input"
+                type="text"
+                placeholder="+2"
+                autocomplete="off"
+                required
+              >
+            </div>
+          </div>
+
+          <fieldset>
+            <legend>Transition element?</legend>
+
+            <div class="checkbox-options">
+              <label>
+                <input
+                  type="checkbox"
+                  id="transition-yes"
+                  name="transition"
+                  value="yes"
+                  aria-controls="additional-charges"
+                  aria-expanded="false"
+                >
+                Yes
+              </label>
+
+              <label>
+                <input
+                  type="checkbox"
+                  id="transition-no"
+                  name="transition"
+                  value="no"
+                >
+                No
+              </label>
+            </div>
+          </fieldset>
+
+          <div
+            id="additional-charges"
+            class="additional-charge-panel"
+            hidden
+          >
+            <p class="intro">
+              Research other typical positive charges for this element.
+              Enter up to two additional charges below.
+              Leave either box blank if it is not needed.
+            </p>
+
+            <div class="fields equal-fields">
+              <div class="field">
+                <label for="additional-charge-1">
+                  Other typical charge 1
+                </label>
+
+                <input
+                  id="additional-charge-1"
+                  class="text-input"
+                  type="text"
+                  placeholder="e.g., +3"
+                  autocomplete="off"
+                  disabled
+                >
+              </div>
+
+              <div class="field">
+                <label for="additional-charge-2">
+                  Other typical charge 2
+                </label>
+
+                <input
+                  id="additional-charge-2"
+                  class="text-input"
+                  type="text"
+                  placeholder="Optional"
+                  autocomplete="off"
+                  disabled
+                >
+              </div>
+            </div>
+          </div>
+
+          <p class="note">
+            Selecting Yes adds a Roman numeral to a monatomic
+            cation's name and allows additional charges.
+            Each distinct charge produces a separate result.
+          </p>
+        </fieldset>
+
+        <fieldset class="entry-card">
+          <legend>Anion</legend>
+
+          <div class="fields">
+            <div class="field">
+              <label for="anion-formula">
+                Anion symbol/formula
+              </label>
+
+              <input
+                id="anion-formula"
+                class="text-input formula-input"
+                type="text"
+                placeholder="e.g., Cl, O, NO₃, or SO₄"
+                autocapitalize="off"
+                spellcheck="false"
+                autocomplete="off"
+                required
+              >
+            </div>
+
+            <div class="field">
+              <label for="anion-charge">Charge</label>
+
+              <input
+                id="anion-charge"
+                class="text-input"
+                type="text"
+                placeholder="-1"
+                autocomplete="off"
+                required
+              >
+            </div>
+          </div>
+        </fieldset>
+
+        <p
+          id="ionic-error"
+          class="error"
+          role="alert"
+          hidden
+        ></p>
+
+        <p class="note">
+          Enter charges separately, such as +1, +2, or -1.
+          The app uses the charges you supply; it does not verify
+          whether an ion, charge, or resulting compound is chemically valid.
+        </p>
+
+        <div class="actions">
+          <button
+            type="button"
+            class="secondary"
+            data-page="results-page"
+          >
+            Back to result
+          </button>
+
+          <button type="submit" class="primary">
+            Continue
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- SCREEN 3: COVALENT INPUTS -->
+    <section
+      id="covalent-page"
+      aria-labelledby="covalent-heading"
+      hidden
+    >
+      <h1 id="covalent-heading" tabindex="-1">
+        Enter Covalent Compound Information
+      </h1>
+
+      <p id="covalent-classification" class="intro"></p>
+
+      <p class="intro">
+        Enter two to four different elements.
+        For each element, enter its number of unpaired valence
+        electrons and its relative number in the compound.
+        Leave unused rows completely blank.
+      </p>
+
+      <p class="note">
+        Enter the whole-number atom counts you determined for the compound.
+        For example, enter C = 6, H = 12, and O = 6 for C₆H₁₂O₆.
+        Counts are used exactly as entered and are not reduced.
+        There is no six-atom limit.
+      </p>
+
+      <form id="covalent-form">
+        <div id="covalent-rows"></div>
+
+        <p
+          id="covalent-error"
+          class="error"
+          role="alert"
+          hidden
+        ></p>
+
+        <p class="note">
+          Elements appear in the formula in the order entered.
+          For two-element prefix names, enter the element that
+          should be named first in the first row.
+        </p>
+
+        <div class="actions">
+          <button
+            type="button"
+            class="secondary"
+            data-page="results-page"
+          >
+            Back to result
+          </button>
+
+          <button type="submit" class="primary">
+            Continue
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- SCREEN 4: IONIC RESULTS -->
+    <section
+      id="ionic-results-page"
+      aria-labelledby="ionic-results-heading"
+      hidden
+    >
+      <h1 id="ionic-results-heading" tabindex="-1">
+        Ionic Compound Formulas and Names
+      </h1>
+
+      <p id="ionic-results-intro" class="intro"></p>
+      <div id="ionic-results"></div>
+
+      <p class="note">
+        Results are generated from the charges you entered.
+        Each formula uses the lowest whole-number ion ratio
+        that gives a total charge of zero.
+        Duplicate charges produce only one result.
+        These results are not a verified list of all chemically
+        possible compounds.
+      </p>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="secondary"
+          data-page="ionic-page"
+        >
+          Back to ion information
+        </button>
+
+        <button
+          type="button"
+          class="secondary"
+          data-page="input-page"
+        >
+          Back to questions
+        </button>
+      </div>
+    </section>
+
+    <!-- SCREEN 4: COVALENT RESULTS -->
+    <section
+      id="covalent-results-page"
+      aria-labelledby="covalent-results-heading"
+      hidden
+    >
+      <h1 id="covalent-results-heading" tabindex="-1">
+        Covalent Compound Results
+      </h1>
+
+      <p id="covalent-result-classification" class="intro"></p>
+
+      <div class="box">
+        <h2>Formula and name</h2>
+
+        <div
+          id="covalent-formula-output"
+          class="formula-output"
+        ></div>
+
+        <p
+          id="covalent-name-output"
+          class="compound-name"
+        ></p>
+
+        <p id="covalent-name-note" class="note"></p>
+
+        <div
+          id="covalent-database-result"
+          class="database-result"
+          aria-live="polite"
+        ></div>
+      </div>
+
+      <div class="box">
+        <h2>Suggested central element</h2>
+
+        <p id="central-element-output"></p>
+        <p id="central-element-note" class="note"></p>
+      </div>
+
+      <h3>Your inputs</h3>
+      <ul id="covalent-input-summary" class="summary"></ul>
+
+      <div class="actions">
+        <button
+          type="button"
+          class="secondary"
+          data-page="covalent-page"
+        >
+          Back to element information
+        </button>
+
+        <button
+          type="button"
+          class="secondary"
+          data-page="input-page"
+        >
+          Back to questions
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // ------------------------------------------------------------
+    // SHARED HELPERS
+    // ------------------------------------------------------------
+
+    function capitalize(text) {
+      return text.charAt(0).toUpperCase() + text.slice(1);
+    }
+
+    function hasKey(object, key) {
+      return Object.prototype.hasOwnProperty.call(object, key);
+    }
+
+    function showPage(id) {
+      document.querySelectorAll("main > section").forEach(section => {
+        section.hidden = section.id !== id;
+      });
+
+      $(id).querySelector("h1").focus();
+      window.scrollTo(0, 0);
+    }
+
+    document.querySelectorAll("[data-page]").forEach(button => {
+      button.addEventListener("click", () => {
+        showPage(button.dataset.page);
+      });
+    });
+
+    const normalDigits = "0123456789";
+    const subscriptDigits = "₀₁₂₃₄₅₆₇₈₉";
+
+    function toSubscripts(text) {
+      return String(text).replace(/[0-9]/g, digit => {
+        return subscriptDigits[Number(digit)];
+      });
+    }
+
+    function toNormalDigits(text) {
+      return text.replace(/[₀-₉]/g, digit => {
+        return normalDigits[subscriptDigits.indexOf(digit)];
+      });
+    }
+
+    // ------------------------------------------------------------
+    // ELEMENT AND ION NAMES
+    // ------------------------------------------------------------
+
+    const elementNames = {
+      H: "hydrogen", He: "helium",
+      Li: "lithium", Be: "beryllium",
+      B: "boron", C: "carbon", N: "nitrogen",
+      O: "oxygen", F: "fluorine", Ne: "neon",
+      Na: "sodium", Mg: "magnesium", Al: "aluminum",
+      Si: "silicon", P: "phosphorus", S: "sulfur",
+      Cl: "chlorine", Ar: "argon",
+      K: "potassium", Ca: "calcium", Sc: "scandium",
+      Ti: "titanium", V: "vanadium", Cr: "chromium",
+      Mn: "manganese", Fe: "iron", Co: "cobalt",
+      Ni: "nickel", Cu: "copper", Zn: "zinc",
+      Ga: "gallium", Ge: "germanium", As: "arsenic",
+      Se: "selenium", Br: "bromine", Kr: "krypton",
+      Rb: "rubidium", Sr: "strontium", Y: "yttrium",
+      Zr: "zirconium", Nb: "niobium", Mo: "molybdenum",
+      Tc: "technetium", Ru: "ruthenium", Rh: "rhodium",
+      Pd: "palladium", Ag: "silver", Cd: "cadmium",
+      In: "indium", Sn: "tin", Sb: "antimony",
+      Te: "tellurium", I: "iodine", Xe: "xenon",
+      Cs: "cesium", Ba: "barium", La: "lanthanum",
+      Ce: "cerium", Pr: "praseodymium", Nd: "neodymium",
+      Pm: "promethium", Sm: "samarium", Eu: "europium",
+      Gd: "gadolinium", Tb: "terbium", Dy: "dysprosium",
+      Ho: "holmium", Er: "erbium", Tm: "thulium",
+      Yb: "ytterbium", Lu: "lutetium", Hf: "hafnium",
+      Ta: "tantalum", W: "tungsten", Re: "rhenium",
+      Os: "osmium", Ir: "iridium", Pt: "platinum",
+      Au: "gold", Hg: "mercury", Tl: "thallium",
+      Pb: "lead", Bi: "bismuth", Po: "polonium",
+      At: "astatine", Rn: "radon", Fr: "francium",
+      Ra: "radium", Ac: "actinium", Th: "thorium",
+      Pa: "protactinium", U: "uranium", Np: "neptunium",
+      Pu: "plutonium", Am: "americium", Cm: "curium",
+      Bk: "berkelium", Cf: "californium", Es: "einsteinium",
+      Fm: "fermium", Md: "mendelevium", No: "nobelium",
+      Lr: "lawrencium", Rf: "rutherfordium", Db: "dubnium",
+      Sg: "seaborgium", Bh: "bohrium", Hs: "hassium",
+      Mt: "meitnerium", Ds: "darmstadtium", Rg: "roentgenium",
+      Cn: "copernicium", Nh: "nihonium", Fl: "flerovium",
+      Mc: "moscovium", Lv: "livermorium",
+      Ts: "tennessine", Og: "oganesson"
+    };
+
+    const polyatomicIonNames = {
+      NO3: "nitrate",
+      NO2: "nitrite",
+      CO3: "carbonate",
+      OH: "hydroxide",
+      SO4: "sulfate",
+      SO3: "sulfite",
+      PO4: "phosphate",
+      NH4: "ammonium"
+    };
+
+    const monatomicAnionNames = {
+      H: "hydride",
+      B: "boride",
+      C: "carbide",
+      N: "nitride",
+      O: "oxide",
+      F: "fluoride",
+      Si: "silicide",
+      P: "phosphide",
+      S: "sulfide",
+      Cl: "chloride",
+      As: "arsenide",
+      Se: "selenide",
+      Br: "bromide",
+      Sb: "antimonide",
+      Te: "telluride",
+      I: "iodide",
+      At: "astatide"
+    };
+
+    // ------------------------------------------------------------
+    // TEACHER DATABASE LOOKUP
+    // ------------------------------------------------------------
+
+    const TEACHER_DATABASE_URL =
+      "https://raw.githubusercontent.com/mberger3109111/Bonding-Database/main/Database.json";
+
+    let teacherDatabasePromise = null;
+    const teacherDatabaseLookupVersions = new WeakMap();
+
+    function getDatabaseFormulaKey(formula) {
+      return toNormalDigits(String(formula)).trim();
+    }
+
+    function loadTeacherDatabase() {
+      if (!teacherDatabasePromise) {
+        teacherDatabasePromise = fetch(TEACHER_DATABASE_URL, {
+          cache: "no-cache"
+        })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(
+                `Teacher database request failed: HTTP ${response.status}`
+              );
+            }
+
+            return response.json();
+          })
+          .then(database => {
+            if (
+              !database ||
+              typeof database !== "object" ||
+              Array.isArray(database)
+            ) {
+              throw new Error(
+                "The teacher database must be an object keyed by formula."
+              );
+            }
+
+            return database;
+          })
+          .catch(error => {
+            teacherDatabasePromise = null;
+            throw error;
+          });
+      }
+
+      return teacherDatabasePromise;
+    }
+
+    async function displayCompoundDatabaseLookup(formula, container) {
+      const version =
+        (teacherDatabaseLookupVersions.get(container) || 0) + 1;
+
+      teacherDatabaseLookupVersions.set(container, version);
+      container.hidden = false;
+
+      const status = document.createElement("p");
+      status.textContent = "Checking teacher database...";
+      container.replaceChildren(status);
+
+      try {
+        const database = await loadTeacherDatabase();
+
+        if (
+          teacherDatabaseLookupVersions.get(container) !== version
+        ) {
+          return;
+        }
+
+        const formulaKey = getDatabaseFormulaKey(formula);
+
+        if (!hasKey(database, formulaKey)) {
+          status.textContent =
+            "No additional database information is available for this compound.";
+          return;
+        }
+
+        const compound = database[formulaKey];
+
+        if (
+          !compound ||
+          typeof compound !== "object" ||
+          typeof compound.name !== "string" ||
+          !compound.name.trim()
+        ) {
+          throw new Error(
+            `The database entry for ${formulaKey} has no valid name field.`
+          );
+        }
+
+        status.textContent =
+          "Compound Identified: " + compound.name.trim();
+
+        if (
+          typeof compound.page !== "string" ||
+          !compound.page.trim()
+        ) {
+          const notice = document.createElement("p");
+          notice.className = "note";
+          notice.textContent =
+            "This database entry does not include a valid page link.";
+
+          container.append(notice);
+          return;
+        }
+
+        let pageURL;
+
+        try {
+          pageURL = new URL(compound.page.trim());
+        } catch {
+          throw new Error(
+            `The page field for ${formulaKey} must contain a complete URL.`
+          );
+        }
+
+        if (
+          pageURL.protocol !== "https:" &&
+          pageURL.protocol !== "http:"
+        ) {
+          throw new Error(
+            "The compound page must use an HTTP or HTTPS URL."
+          );
+        }
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "primary";
+        button.textContent = "Learn More About This Compound";
+
+        button.addEventListener("click", () => {
+          window.open(
+            pageURL.href,
+            "_blank",
+            "noopener,noreferrer"
+          );
+        });
+
+        container.append(button);
+      } catch (error) {
+        if (
+          teacherDatabaseLookupVersions.get(container) !== version
+        ) {
+          return;
+        }
+
+        const notice = document.createElement("p");
+        notice.className = "note";
+        notice.textContent =
+          "Unable to load or read the teacher database. " +
+          "Your generated results are unchanged.";
+
+        const details = document.createElement("p");
+        details.className = "note";
+        details.textContent = "Details: " + error.message;
+
+        if (status.textContent.startsWith("Compound Identified:")) {
+          container.append(notice, details);
+        } else {
+          container.replaceChildren(notice, details);
+        }
+
+        console.error("Teacher database lookup failed:", {
+          formula: getDatabaseFormulaKey(formula),
+          databaseURL: TEACHER_DATABASE_URL,
+          error
+        });
+      }
+    }
+
+    // ------------------------------------------------------------
+    // CLASSIFICATION
+    // ------------------------------------------------------------
+
+    const questions = [
+      {
+        name: "solid",
+        text: "Does it conduct electricity as a solid?",
+        options: ["yes", "no"]
+      },
+      {
+        name: "melting",
+        text: "Does it have a high or low melting point?",
+        options: ["high", "low"]
+      },
+      {
+        name: "soluble",
+        text: "Is it soluble in water?",
+        options: ["yes", "no"]
+      },
+      {
+        name: "dissolved",
+        text: "Does it conduct when dissolved in water?",
+        options: ["yes", "no"]
+      }
+    ];
+
+    const rules = [
+      {
+        values: ["no", "high", "yes", "yes"],
+        label: "Ionic",
+        type: "ionic"
+      },
+      {
+        values: ["no", "low", "yes", "no"],
+        label: "Polar covalent",
+        type: "covalent"
+      },
+      {
+        values: ["no", "low", "no", "no"],
+        label: "Non-polar covalent",
+        type: "covalent"
+      }
+    ];
+
+    let currentRule = null;
+
+    questions.forEach((question, index) => {
+      const fieldset = document.createElement("fieldset");
+      const legend = document.createElement("legend");
+      legend.textContent = `${index + 1}. ${question.text}`;
+
+      const choices = document.createElement("div");
+      choices.className = "choices";
+
+      question.options.forEach(value => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "choice";
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.id = `${question.name}-${value}`;
+        input.name = question.name;
+        input.value = value;
+        input.required = true;
+
+        const label = document.createElement("label");
+        label.htmlFor = input.id;
+        label.textContent = capitalize(value);
+
+        wrapper.append(input, label);
+        choices.append(wrapper);
+      });
+
+      fieldset.append(legend, choices);
+      $("questions").append(fieldset);
+    });
+
+    $("compound-form").addEventListener("submit", event => {
+      event.preventDefault();
+
+      const answers = new FormData(event.currentTarget);
+
+      const values = questions.map(question => {
+        return answers.get(question.name);
+      });
+
+      currentRule = rules.find(rule => {
+        return rule.values.every((value, index) => {
+          return value === values[index];
+        });
+      }) || null;
+
+      $("classification").textContent = currentRule
+        ? currentRule.label
+        : "No matching classification";
+
+      $("classification-description").textContent = currentRule
+        ? "Click Continue to enter information about the compound."
+        : "These answers do not match any of the three defined rules.";
+
+      $("continue-to-entry").disabled = !currentRule;
+      $("answer-summary").replaceChildren();
+
+      questions.forEach((question, index) => {
+        const item = document.createElement("li");
+        item.textContent =
+          `${question.text} ${capitalize(values[index])}`;
+        $("answer-summary").append(item);
+      });
+
+      showPage("results-page");
+    });
+
+    $("continue-to-entry").addEventListener("click", () => {
+      if (!currentRule) return;
+
+      if (currentRule.type === "ionic") {
+        showPage("ionic-page");
+      } else {
+        $("covalent-classification").textContent =
+          "Classification: " + currentRule.label;
+        showPage("covalent-page");
+      }
+    });
+
+    // ------------------------------------------------------------
+    // IONIC INPUT CONTROLS
+    // ------------------------------------------------------------
+
+    const transitionYes = $("transition-yes");
+    const transitionNo = $("transition-no");
+
+    function updateAdditionalChargeFields() {
+      const showFields = transitionYes.checked;
+
+      $("additional-charges").hidden = !showFields;
+      $("additional-charge-1").disabled = !showFields;
+      $("additional-charge-2").disabled = !showFields;
+
+      transitionYes.setAttribute(
+        "aria-expanded",
+        String(showFields)
+      );
+    }
+
+    transitionYes.addEventListener("change", () => {
+      if (transitionYes.checked) {
+        transitionNo.checked = false;
+      }
+      updateAdditionalChargeFields();
+    });
+
+    transitionNo.addEventListener("change", () => {
+      if (transitionNo.checked) {
+        transitionYes.checked = false;
+      }
+      updateAdditionalChargeFields();
+    });
+
+    updateAdditionalChargeFields();
+
+    ["cation-formula", "anion-formula"].forEach(id => {
+      $(id).addEventListener("input", event => {
+        const input = event.target;
+        const start = input.selectionStart;
+        const end = input.selectionEnd;
+
+        input.value = toSubscripts(input.value);
+        input.setSelectionRange(start, end);
+      });
+    });
+
+    // ------------------------------------------------------------
+    // IONIC FORMULA PARSING
+    // ------------------------------------------------------------
+
+    function removeOuterParentheses(formula) {
+      while (formula.startsWith("(") && formula.endsWith(")")) {
+        let depth = 0;
+        let wrapsEntireFormula = true;
+
+        for (let index = 0; index < formula.length; index++) {
+          if (formula[index] === "(") depth++;
+          if (formula[index] === ")") depth--;
+
+          if (depth === 0 && index < formula.length - 1) {
+            wrapsEntireFormula = false;
+            break;
+          }
+        }
+
+        if (!wrapsEntireFormula) break;
+        formula = formula.slice(1, -1);
+      }
+
+      return formula;
+    }
+
+    function parseFormula(rawFormula) {
+      let formula = toNormalDigits(rawFormula.trim());
+
+      if (!formula) {
+        throw new Error(
+          "Enter both the cation and anion formulas."
+        );
+      }
+
+      let position = 0;
+
+      function readCount() {
+        const start = position;
+
+        while (/[0-9]/.test(formula[position] || "")) {
+          position++;
+        }
+
+        if (position === start) return 1;
+
+        const digits = formula.slice(start, position);
+        const count = Number(digits);
+
+        if (
+          digits.startsWith("0") ||
+          !Number.isSafeInteger(count) ||
+          count < 1
+        ) {
+          throw new Error(
+            "Formula subscripts must be positive whole numbers."
+          );
+        }
+
+        return count;
+      }
+
+      function readGroup(nested) {
+        let atomCount = 0;
+        let terms = 0;
+
+        while (
+          position < formula.length &&
+          formula[position] !== ")"
+        ) {
+          let atomsInTerm;
+
+          if (formula[position] === "(") {
+            position++;
+            atomsInTerm = readGroup(true);
+          } else {
+            const match = formula
+              .slice(position)
+              .match(/^[A-Z][a-z]?/);
+
+            if (!match) {
+              throw new Error(
+                "Check formula formatting. Use symbols such as " +
+                "Na, Ca, NO₃, or NH₄. Enter charges separately."
+              );
+            }
+
+            const symbol = match[0];
+
+            if (!hasKey(elementNames, symbol)) {
+              throw new Error(
+                `"${symbol}" is not a recognized element symbol. ` +
+                "Check capitalization."
+              );
+            }
+
+            position += symbol.length;
+            atomsInTerm = 1;
+          }
+
+          atomCount += atomsInTerm * readCount();
+          terms++;
+
+          if (!Number.isSafeInteger(atomCount)) {
+            throw new Error(
+              "The formula contains a subscript that is too large."
+            );
+          }
+        }
+
+        if (!terms) {
+          throw new Error(
+            "Formulas cannot contain empty groups."
+          );
+        }
+
+        if (nested) {
+          if (formula[position] !== ")") {
+            throw new Error(
+              "Check the parentheses in your formula."
+            );
+          }
+          position++;
+        }
+
+        return atomCount;
+      }
+
+      const atomCount = readGroup(false);
+
+      if (position !== formula.length) {
+        throw new Error(
+          "Check the parentheses in your formula."
+        );
+      }
+
+      formula = removeOuterParentheses(formula);
+
+      if (atomCount === 1) {
+        formula = formula.replace(/^([A-Z][a-z]?)1$/, "$1");
+      }
+
+      return { formula, atomCount };
+    }
+
+    function parseCharge(rawCharge, isCation) {
+      const text = rawCharge.trim().replace(/−/g, "-");
+      let charge;
+
+      if (/^[+-]?\d+$/.test(text)) {
+        charge = Number(text);
+      } else if (/^\d+[+-]$/.test(text)) {
+        charge =
+          Number(text.slice(0, -1)) *
+          (text.endsWith("-") ? -1 : 1);
+      } else {
+        throw new Error(
+          "Enter whole-number charges such as +2 and -1."
+        );
+      }
+
+      if (
+        !Number.isSafeInteger(charge) ||
+        charge === 0 ||
+        Math.abs(charge) > 100
+      ) {
+        throw new Error(
+          "Enter a nonzero whole-number charge from -100 to +100."
+        );
+      }
+
+      if (isCation && charge < 0) {
+        throw new Error(
+          "The cation charge must be positive."
+        );
+      }
+
+      if (!isCation && charge > 0) {
+        throw new Error(
+          "The anion charge must be negative."
+        );
+      }
+
+      return charge;
+    }
+
+    // ------------------------------------------------------------
+    // IONIC BALANCING AND NAMING
+    // ------------------------------------------------------------
+
+    function gcd(a, b) {
+      while (b !== 0) {
+        [a, b] = [b, a % b];
+      }
+      return a;
+    }
+
+    function formatIonPart(ion, quantity) {
+      const formula = removeOuterParentheses(ion.formula);
+
+      if (quantity === 1) {
+        return toSubscripts(formula);
+      }
+
+      const grouped = ion.atomCount > 1
+        ? `(${formula})`
+        : formula;
+
+      return toSubscripts(grouped + quantity);
+    }
+
+    function toRomanNumeral(number) {
+      const numerals = [
+        [1000, "M"], [900, "CM"],
+        [500, "D"], [400, "CD"],
+        [100, "C"], [90, "XC"],
+        [50, "L"], [40, "XL"],
+        [10, "X"], [9, "IX"],
+        [5, "V"], [4, "IV"],
+        [1, "I"]
+      ];
+
+      let result = "";
+
+      for (const [value, numeral] of numerals) {
+        while (number >= value) {
+          result += numeral;
+          number -= value;
+        }
+      }
+
+      return result;
+    }
+
+    function normalizeIonForNaming(ion) {
+      return removeOuterParentheses(
+        toNormalDigits(ion.formula)
+      );
+    }
+
+    function getCationName(ion) {
+      const formula = normalizeIonForNaming(ion);
+
+      if (hasKey(polyatomicIonNames, formula)) {
+        return polyatomicIonNames[formula];
+      }
+
+      if (hasKey(elementNames, formula)) {
+        return elementNames[formula];
+      }
+
+      throw new Error(
+        `No cation name is defined for ${toSubscripts(formula)}. ` +
+        "Use an element symbol or a polyatomic ion from the supplied list."
+      );
+    }
+
+    function getAnionName(ion) {
+      const formula = normalizeIonForNaming(ion);
+
+      if (hasKey(polyatomicIonNames, formula)) {
+        return polyatomicIonNames[formula];
+      }
+
+      if (hasKey(monatomicAnionNames, formula)) {
+        return monatomicAnionNames[formula];
+      }
+
+      throw new Error(
+        `No anion name is defined for ${toSubscripts(formula)}. ` +
+        "Use a supported monatomic anion or a polyatomic ion " +
+        "from the supplied list."
+      );
+    }
+
+    function buildIonicName(
+      cation,
+      anion,
+      cationCharge,
+      includeRomanNumeral
+    ) {
+      let cationName = getCationName(cation);
+      const anionName = getAnionName(anion);
+
+      const isPolyatomicCation = hasKey(
+        polyatomicIonNames,
+        normalizeIonForNaming(cation)
+      );
+
+      const isPolyatomicAnion = hasKey(
+        polyatomicIonNames,
+        normalizeIonForNaming(anion)
+      );
+
+      const explanation = [
+        `The cation name is ${cationName}.`
+      ];
+
+      if (includeRomanNumeral && !isPolyatomicCation) {
+        const roman = toRomanNumeral(cationCharge);
+        cationName += ` (${roman})`;
+
+        explanation.push(
+          `The cation charge is +${cationCharge}, so ` +
+          `(${roman}) is included after its name.`
+        );
+      }
+
+      explanation.push(
+        isPolyatomicAnion
+          ? `The polyatomic anion name, ${anionName}, stays unchanged.`
+          : `The monatomic anion uses the -ide name ${anionName}.`
+      );
+
+      return {
+        name: capitalize(`${cationName} ${anionName}`),
+        explanation: explanation.join(" ")
+      };
+    }
+
+    function createIonicResultCard(result, index) {
+      const card = document.createElement("article");
+      card.className = "box";
+
+      const heading = document.createElement("h2");
+      heading.textContent =
+        `Result ${index + 1}: cation charge +${result.cationCharge}`;
+
+      const formula = document.createElement("div");
+      formula.className = "formula-output";
+      formula.textContent = result.formula;
+
+      const name = document.createElement("p");
+      name.className = "compound-name";
+      name.textContent = result.name;
+
+      const balanceHeading = document.createElement("h3");
+      balanceHeading.textContent = "How the charges balance";
+
+      const ratio = document.createElement("p");
+      ratio.textContent =
+        "The lowest whole-number cation-to-anion ratio is " +
+        `${result.cationCount}:${result.anionCount}. ` +
+        `This uses ${result.cationCount} cation ion(s) and ` +
+        `${result.anionCount} anion ion(s).`;
+
+      const totalPositive =
+        result.cationCount * result.cationCharge;
+
+      const totalNegative =
+        result.anionCount * result.anionCharge;
+
+      const equation = document.createElement("p");
+      equation.textContent =
+        `${result.cationCount} × (+${result.cationCharge}) + ` +
+        `${result.anionCount} × (${result.anionCharge}) = ` +
+        `(+${totalPositive}) + (${totalNegative}) = 0`;
+
+      const nameHeading = document.createElement("h3");
+      nameHeading.textContent = "How the name was built";
+
+      const explanation = document.createElement("p");
+      explanation.textContent = result.explanation;
+
+      const databaseSection = document.createElement("div");
+      databaseSection.className = "database-result";
+      databaseSection.setAttribute("aria-live", "polite");
+
+      card.append(
+        heading,
+        formula,
+        name,
+        balanceHeading,
+        ratio,
+        equation,
+        nameHeading,
+        explanation,
+        databaseSection
+      );
+
+      displayCompoundDatabaseLookup(
+        result.formula,
+        databaseSection
+      );
+
+      return card;
+    }
+
+    $("ionic-form").addEventListener("submit", event => {
+      event.preventDefault();
+      $("ionic-error").hidden = true;
+
+      try {
+        const cation = parseFormula($("cation-formula").value);
+        const anion = parseFormula($("anion-formula").value);
+
+        const primaryCharge = parseCharge(
+          $("cation-charge").value,
+          true
+        );
+
+        const anionCharge = parseCharge(
+          $("anion-charge").value,
+          false
+        );
+
+        if (!transitionYes.checked && !transitionNo.checked) {
+          throw new Error(
+            "Select Yes or No for whether the cation is a transition element."
+          );
+        }
+
+        const enteredCharges = [primaryCharge];
+
+        if (transitionYes.checked) {
+          const additionalFields = [
+            {
+              id: "additional-charge-1",
+              label: "Other typical charge 1"
+            },
+            {
+              id: "additional-charge-2",
+              label: "Other typical charge 2"
+            }
+          ];
+
+          additionalFields.forEach(field => {
+            const rawCharge = $(field.id).value.trim();
+
+            if (!rawCharge) return;
+
+            try {
+              enteredCharges.push(parseCharge(rawCharge, true));
+            } catch (error) {
+              throw new Error(
+                `${field.label}: ${error.message}`
+              );
+            }
+          });
+        }
+
+        const uniqueCharges = [...new Set(enteredCharges)];
+
+        const results = uniqueCharges.map(cationCharge => {
+          const commonDivisor = gcd(
+            cationCharge,
+            Math.abs(anionCharge)
+          );
+
+          const cationCount =
+            Math.abs(anionCharge) / commonDivisor;
+
+          const anionCount =
+            cationCharge / commonDivisor;
+
+          const namingResult = buildIonicName(
+            cation,
+            anion,
+            cationCharge,
+            transitionYes.checked
+          );
+
+          return {
+            cationCharge,
+            anionCharge,
+            cationCount,
+            anionCount,
+            formula:
+              formatIonPart(cation, cationCount) +
+              formatIonPart(anion, anionCount),
+            name: namingResult.name,
+            explanation: namingResult.explanation
+          };
+        });
+
+        $("ionic-results").replaceChildren();
+
+        $("ionic-results-intro").textContent =
+          results.length === 1
+            ? "One formula and name were generated from the entered charges."
+            : `${results.length} formulas and names were generated ` +
+              "using the distinct cation charges you entered " +
+              "and the same anion.";
+
+        results.forEach((result, index) => {
+          $("ionic-results").append(
+            createIonicResultCard(result, index)
+          );
+        });
+
+        showPage("ionic-results-page");
+      } catch (error) {
+        $("ionic-error").textContent = error.message;
+        $("ionic-error").hidden = false;
+      }
+    });
+
+    // ------------------------------------------------------------
+    // COVALENT INPUT ROWS
+    // ------------------------------------------------------------
+
+    for (let row = 1; row <= 4; row++) {
+      const fieldset = document.createElement("fieldset");
+      fieldset.className = "entry-card";
+
+      fieldset.innerHTML = `
+        <legend>Element ${row}</legend>
+
+        <div class="fields three-fields">
+          <div class="field">
+            <label for="covalent-symbol-${row}">
+              Element symbol
+            </label>
+
+            <input
+              id="covalent-symbol-${row}"
+              class="text-input"
+              type="text"
+              placeholder="e.g., C"
+              autocapitalize="off"
+              spellcheck="false"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field">
+            <label for="covalent-electrons-${row}">
+              Number of unpaired valence electrons
+            </label>
+
+            <input
+              id="covalent-electrons-${row}"
+              class="text-input"
+              type="number"
+              min="0"
+              max="8"
+              step="1"
+              placeholder="e.g., 4"
+            >
+          </div>
+
+          <div class="field">
+            <label for="covalent-relative-${row}">
+              Relative number
+            </label>
+
+            <input
+              id="covalent-relative-${row}"
+              class="text-input"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="e.g., 1, 6, 12..."
+            >
+          </div>
+        </div>
+      `;
+
+      $("covalent-rows").append(fieldset);
+    }
+
+    // ------------------------------------------------------------
+    // COVALENT VALIDATION AND FORMULAS
+    // ------------------------------------------------------------
+
+    const covalentPrefixes = {
+      1: "mono",
+      2: "di",
+      3: "tri",
+      4: "tetra",
+      5: "penta",
+      6: "hexa"
+    };
+
+    function readCovalentInputs() {
+      const entries = [];
+      const seenSymbols = new Set();
+
+      for (let row = 1; row <= 4; row++) {
+        const symbol =
+          $(`covalent-symbol-${row}`).value.trim();
+
+        const electronsText =
+          $(`covalent-electrons-${row}`).value.trim();
+
+        const countText =
+          $(`covalent-relative-${row}`).value.trim();
+
+        const completelyBlank =
+          symbol === "" &&
+          electronsText === "" &&
+          countText === "";
+
+        if (completelyBlank) continue;
+
+        if (
+          symbol === "" ||
+          electronsText === "" ||
+          countText === ""
+        ) {
+          throw new Error(
+            `Element ${row}: complete all three fields, ` +
+            "or leave the entire row blank."
+          );
+        }
+
+        if (!hasKey(elementNames, symbol)) {
+          throw new Error(
+            `Element ${row}: "${symbol}" is not a recognized ` +
+            "element symbol. Check capitalization, such as C or Cl."
+          );
+        }
+
+        if (seenSymbols.has(symbol)) {
+          throw new Error(
+            `Enter ${symbol} only once. Put its total atom count ` +
+            "in the Relative number box."
+          );
+        }
+
+        const unpaired = Number(electronsText);
+        const count = Number(countText);
+
+        if (
+          !Number.isInteger(unpaired) ||
+          unpaired < 0 ||
+          unpaired > 8
+        ) {
+          throw new Error(
+            `Element ${row}: enter a whole number from 0 to 8 ` +
+            "for unpaired valence electrons."
+          );
+        }
+
+        if (!Number.isSafeInteger(count) || count < 1) {
+          throw new Error(
+            `Element ${row}: Relative number must be a positive ` +
+            "whole number that the app can represent accurately."
+          );
+        }
+
+        seenSymbols.add(symbol);
+
+        entries.push({
+          symbol,
+          unpaired,
+          count
+        });
+      }
+
+      if (entries.length < 2) {
+        throw new Error(
+          "Enter at least two different elements."
+        );
+      }
+
+      return entries;
+    }
+
+    function buildCovalentFormula(entries) {
+      return entries.map(entry => {
+        const subscript = entry.count === 1
+          ? ""
+          : toSubscripts(entry.count);
+
+        return entry.symbol + subscript;
+      }).join("");
+    }
+
+    // ------------------------------------------------------------
+    // BINARY COVALENT PREFIX NAMING
+    // ------------------------------------------------------------
+
+    function buildBinaryCovalentName(entries) {
+      if (entries.length !== 2) {
+        return {
+          name: "Name requires additional naming rules",
+          note:
+            "The formula shows the composition you entered. " +
+            "The binary prefix-naming rules used here apply to " +
+            "two different elements and do not provide a general " +
+            "standard name for compounds with three or four elements."
+        };
+      }
+
+      const [first, second] = entries;
+
+      if (
+        !hasKey(covalentPrefixes, first.count) ||
+        !hasKey(covalentPrefixes, second.count)
+      ) {
+        return {
+          name: "Formula generated; name not available",
+          note:
+            "The formula uses the atom counts you entered. " +
+            "This app currently has naming prefixes programmed " +
+            "only for counts 1 through 6. Larger atom counts are " +
+            "accepted, but their naming prefixes have not yet been added."
+        };
+      }
+
+      if (!hasKey(monatomicAnionNames, second.symbol)) {
+        return {
+          name: "Name not available",
+          note:
+            `An -ide name for ${second.symbol} has not been ` +
+            "defined in this app. Check the element order or " +
+            "add the appropriate naming rule."
+        };
+      }
+
+      const firstName =
+        (first.count === 1 ? "" : covalentPrefixes[first.count]) +
+        elementNames[first.symbol];
+
+      let secondName;
+
+      if (second.symbol === "O") {
+        const oxideNames = {
+          1: "monoxide",
+          2: "dioxide",
+          3: "trioxide",
+          4: "tetroxide",
+          5: "pentoxide",
+          6: "hexoxide"
+        };
+
+        secondName = oxideNames[second.count];
+      } else {
+        secondName =
+          covalentPrefixes[second.count] +
+          monatomicAnionNames[second.symbol];
+      }
+
+      return {
+        name: capitalize(`${firstName} ${secondName}`),
+        note:
+          "This is the binary prefix name generated from the " +
+          "entered element order and atom counts. Mono- is " +
+          "omitted from the first element. The second element " +
+          "uses a numerical prefix and its -ide name. " +
+          "Common names and other naming systems are not applied."
+      };
+    }
+
+    // ------------------------------------------------------------
+    // CENTRAL-ELEMENT HEURISTIC
+    // ------------------------------------------------------------
+
+    function suggestCentralElement(entries) {
+      const isDiatomic =
+        entries.length === 2 &&
+        entries.every(entry => entry.count === 1);
+
+      if (isDiatomic) {
+        return {
+          text:
+            "No central atom: this formula contains only two atoms.",
+          note:
+            "A two-atom molecule does not have an atom between " +
+            "other atoms."
+        };
+      }
+
+      const highest = Math.max(
+        ...entries.map(entry => entry.unpaired)
+      );
+
+      const candidates = entries.filter(entry => {
+        return entry.unpaired === highest;
+      });
+
+      const heuristicNote =
+        "This uses the activity's rule: choose the element with " +
+        "the highest entered number of unpaired valence electrons. " +
+        "It is a heuristic, not a verified molecular structure.";
+
+      if (candidates.length > 1) {
+        const names = candidates.map(entry => {
+          return `${capitalize(elementNames[entry.symbol])} ` +
+            `(${entry.symbol})`;
+        });
+
+        return {
+          text:
+            `Tie: ${names.join(", ")} each have ` +
+            `${highest} entered unpaired valence electron(s).`,
+          note:
+            heuristicNote +
+            " This rule does not select a unique central element " +
+            "for these inputs."
+        };
+      }
+
+      const candidate = candidates[0];
+      let note = heuristicNote;
+
+      if (candidate.count > 1) {
+        note +=
+          " More than one atom of the selected element is present, " +
+          "so this does not identify one unique central atom.";
+      }
+
+      if (
+        candidate.symbol === "H" ||
+        candidate.symbol === "F"
+      ) {
+        note +=
+          " Caution: hydrogen and fluorine are not appropriate " +
+          "central atoms in the usual introductory Lewis structures. " +
+          "Review the inputs and structure.";
+      }
+
+      return {
+        text:
+          `${capitalize(elementNames[candidate.symbol])} ` +
+          `(${candidate.symbol}), with ${highest} entered ` +
+          "unpaired valence electron(s).",
+        note
+      };
+    }
+
+    // ------------------------------------------------------------
+    // GENERATE COVALENT RESULTS
+    // ------------------------------------------------------------
+
+    $("covalent-form").addEventListener("submit", event => {
+      event.preventDefault();
+      $("covalent-error").hidden = true;
+
+      try {
+        const entries = readCovalentInputs();
+
+        const formula = buildCovalentFormula(entries);
+        const namingResult = buildBinaryCovalentName(entries);
+        const centralResult = suggestCentralElement(entries);
+
+        $("covalent-result-classification").textContent =
+          "Classification from your answers: " +
+          (currentRule ? currentRule.label : "Covalent");
+
+        $("covalent-formula-output").textContent = formula;
+        $("covalent-name-output").textContent = namingResult.name;
+        $("covalent-name-note").textContent = namingResult.note;
+
+        displayCompoundDatabaseLookup(
+          formula,
+          $("covalent-database-result")
+        );
+
+        $("central-element-output").textContent =
+          centralResult.text;
+
+        $("central-element-note").textContent =
+          centralResult.note;
+
+        const summary = $("covalent-input-summary");
+        summary.replaceChildren();
+
+        entries.forEach(entry => {
+          const item = document.createElement("li");
+
+          item.textContent =
+            `${entry.symbol}: ${entry.unpaired} unpaired ` +
+            `valence electron(s); relative number ${entry.count}.`;
+
+          summary.append(item);
+        });
+
+        showPage("covalent-results-page");
+      } catch (error) {
+        $("covalent-error").textContent = error.message;
+        $("covalent-error").hidden = false;
+      }
+    });
+  </script>
+</body>
+</html>
+```
